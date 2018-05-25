@@ -1,14 +1,15 @@
-FROM node:8
+FROM circleci/node:8
 
 LABEL description=
 
 # ensure local python is preferred over distribution python
-ENV PATH /usr/local/bin:$PATH:/root/.local/bin
+ENV PATH /usr/local/bin:$PATH:/home/circleci/.local/bin
 
 # http://bugs.python.org/issue19846
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
 
+USER root
 # upgrade + runtime dependencies
 RUN apt-get update \
     && apt-get upgrade -y --no-install-recommends \
@@ -90,11 +91,12 @@ RUN set -ex; \
 		\) -exec rm -rf '{}' +; \
 	rm -f get-pip.py
 
-RUN pip install awscli --upgrade --user
-
 # Install Git LFS
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
     apt-get install git-lfs
+
+USER circleci
+RUN pip install awscli --upgrade --user
 
 # Adding known_hosts files so that `scp` won't choke.
 RUN mkdir ~/.ssh && ssh-keyscan -H music.playon.link,50.116.28.208 >> ~/.ssh/known_hosts
