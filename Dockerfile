@@ -70,7 +70,7 @@ RUN cd /usr/local/bin \
 	&& ln -s python3-config python-config
 
 # if this is called "PIP_VERSION", pip explodes with "ValueError: invalid truth value '<VERSION>'"
-ENV PYTHON_PIP_VERSION 9.0.1
+ENV PYTHON_PIP_VERSION 10.0.1
 
 RUN set -ex; \
 	\
@@ -94,6 +94,9 @@ RUN set -ex; \
 # Install Git LFS
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
     apt-get install git-lfs
+
+COPY checkout.sh /home/circleci/checkout.sh
+RUN chmod a+rx /home/circleci/checkout.sh
 
 USER circleci
 RUN pip install awscli --upgrade --user
